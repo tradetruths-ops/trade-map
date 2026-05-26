@@ -2197,10 +2197,14 @@
     const { data, error } = await _sb.auth.signUp({ email, password, options: { data: { name } } });
     btn.textContent = 'Create Account'; btn.disabled = false;
     if (error) { showAuthMsg(error.message, '#f87171'); return; }
+    const stripeBase = getActiveStripeLink();
+    const stripeUrl = stripeBase && stripeBase !== '#'
+      ? stripeBase + (stripeBase.includes('?') ? '&' : '?') + 'prefilled_email=' + encodeURIComponent(email)
+      : null;
+    hideAuthModal();
+    if (stripeUrl) window.open(stripeUrl, '_blank');
     if (data.user && !data.session) {
-      showAuthMsg('Check your email to confirm your account, then sign in.', '#34d399');
-    } else {
-      hideAuthModal();
+      showAuthMsg('Account created! Confirm your email, then sign in here after subscribing.', '#34d399');
     }
   }
 
@@ -3175,7 +3179,13 @@
     const emailEl = document.getElementById('sub-req-email');
     if (emailEl) emailEl.textContent = _sbUser?.email || '';
     const stripeBtn = document.getElementById('sub-req-stripe-btn');
-    if (stripeBtn) stripeBtn.href = getActiveStripeLink();
+    if (stripeBtn) {
+      const stripeBase = getActiveStripeLink();
+      const email = _sbUser?.email || '';
+      stripeBtn.href = email && stripeBase && stripeBase !== '#'
+        ? stripeBase + (stripeBase.includes('?') ? '&' : '?') + 'prefilled_email=' + encodeURIComponent(email)
+        : stripeBase;
+    }
     el.style.display = 'flex';
   }
 
@@ -3206,11 +3216,10 @@
   function showPaywall() {
     const link = getActiveStripeLink();
     document.querySelectorAll('[data-stripe-btn]').forEach(el => {
+      el.href = '#';
       if (link && link !== '#') {
-        el.href = link;
-        el.onclick = null;
+        el.onclick = e => { e.preventDefault(); showAuthModal('signup'); };
       } else {
-        el.href = '#';
         el.onclick = e => { e.preventDefault(); alert('Payment link not yet configured. Please contact the admin.'); };
       }
     });
