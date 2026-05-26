@@ -1,0 +1,42 @@
+{
+  "name": "Trade Map",
+  "short_name": "Trade Map",
+  "description": "Professional QQQ trading intelligence — daily levels, chart analysis, and market insights.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#060606",
+  "theme_color": "#060606",
+  "lang": "en-US",
+  "categories": ["finance", "business"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "QQQ Chart",
+      "short_name": "Chart",
+      "url": "/?page=chart",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Stock List",
+      "short_name": "Stocks",
+      "url": "/?page=stocks",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
