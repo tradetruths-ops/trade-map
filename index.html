@@ -2875,7 +2875,15 @@
 
   function showPaywall() {
     const link = getActiveStripeLink();
-    document.querySelectorAll('[data-stripe-btn]').forEach(el => el.href = link);
+    document.querySelectorAll('[data-stripe-btn]').forEach(el => {
+      if (link && link !== '#') {
+        el.href = link;
+        el.onclick = null;
+      } else {
+        el.href = '#';
+        el.onclick = e => { e.preventDefault(); alert('Payment link not yet configured. Please contact the admin.'); };
+      }
+    });
     document.getElementById('paywall').classList.remove('hidden');
   }
 
