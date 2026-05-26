@@ -2077,6 +2077,31 @@
     </div>
   </div>
 
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       SUBSCRIPTION REQUIRED SCREEN
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div id="sub-required" style="display:none;position:fixed;inset:0;z-index:9998;background:#060606;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;">
+    <div style="max-width:440px;width:100%;">
+      <div style="width:3.5rem;height:3.5rem;border-radius:50%;background:rgba(212,168,50,0.1);border:1px solid rgba(212,168,50,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2zm0 5v5m0 4v.5" stroke="#d4a832" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </div>
+      <h2 class="serif text-2xl font-semibold text-white mb-3" style="letter-spacing:-0.02em;">Subscription Required</h2>
+      <p class="text-sm text-slate-400 leading-relaxed mb-1">Signed in as <span id="sub-req-email" class="text-slate-300 font-medium"></span></p>
+      <p class="text-sm text-slate-500 leading-relaxed mb-8">An active Trade Map subscription is required to access the platform. Subscribe below to get instant access.</p>
+      <div class="space-y-3">
+        <a id="sub-req-stripe-btn" href="#" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.875rem 2rem;border-radius:0.875rem;background:linear-gradient(135deg,#9a7015,#c8880a);color:white;font-size:0.9375rem;font-weight:600;text-decoration:none;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+          Subscribe — $75/mo
+        </a>
+        <button onclick="checkSubscriptionRefresh()" id="sub-refresh-btn" style="width:100%;padding:0.75rem;border-radius:0.75rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;font-size:0.875rem;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+          Already paid? Check access
+        </button>
+        <button onclick="authSignOut()" style="width:100%;padding:0.625rem;border-radius:0.75rem;background:none;border:none;color:#475569;font-size:0.8125rem;cursor:pointer;transition:color 0.15s;" onmouseover="this.style.color='#94a3b8'" onmouseout="this.style.color='#475569'">
+          Sign out
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Lightweight Charts -->
   <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
 
@@ -2091,10 +2116,19 @@
   _sb.auth.onAuthStateChange((event, session) => {
     _sbUser = session?.user || null;
     updateAuthNav();
-    if (_sbUser) {
+    if (isAdmin()) {
       hidePaywall();
-      if (!document.querySelector('.page.active')) navigate('chart');
-    } else if (!isAdmin()) {
+      hideSubRequired();
+    } else if (_sbUser) {
+      hidePaywall();
+      if (hasAccess()) {
+        hideSubRequired();
+        if (!document.querySelector('.page.active')) navigate('chart');
+      } else {
+        showSubRequired();
+      }
+    } else {
+      hideSubRequired();
       showPaywall();
     }
   });
@@ -3131,8 +3165,42 @@
 
   function hasAccess() {
     if (isAdmin()) return true;
-    if (_sbUser)   return true;
+    if (_sbUser && _sbUser.app_metadata?.subscription_status === 'active') return true;
     return false;
+  }
+
+  function showSubRequired() {
+    const el = document.getElementById('sub-required');
+    if (!el) return;
+    const emailEl = document.getElementById('sub-req-email');
+    if (emailEl) emailEl.textContent = _sbUser?.email || '';
+    const stripeBtn = document.getElementById('sub-req-stripe-btn');
+    if (stripeBtn) stripeBtn.href = getActiveStripeLink();
+    el.style.display = 'flex';
+  }
+
+  function hideSubRequired() {
+    const el = document.getElementById('sub-required');
+    if (el) el.style.display = 'none';
+  }
+
+  async function checkSubscriptionRefresh() {
+    const btn = document.getElementById('sub-refresh-btn');
+    if (btn) { btn.textContent = 'Checking…'; btn.disabled = true; }
+    try {
+      const { data: { session } } = await _sb.auth.refreshSession();
+      _sbUser = session?.user || null;
+      if (hasAccess()) {
+        hideSubRequired();
+        hidePaywall();
+        navigate('chart');
+      } else {
+        if (btn) btn.textContent = 'No active subscription found';
+        setTimeout(() => { if (btn) { btn.textContent = 'Already paid? Check access'; btn.disabled = false; } }, 3000);
+      }
+    } catch {
+      if (btn) { btn.textContent = 'Already paid? Check access'; btn.disabled = false; }
+    }
   }
 
   function showPaywall() {
@@ -3840,9 +3908,18 @@
     _sbUser = session?.user || null;
     updateAuthNav();
 
-    if (isAdmin())  { hidePaywall(); navigate('chart'); }
-    else if (_sbUser) { hidePaywall(); navigate('chart'); }
-    else              { showPaywall(); }
+    if (isAdmin()) {
+      hidePaywall(); hideSubRequired(); navigate('chart');
+    } else if (_sbUser) {
+      hidePaywall();
+      if (hasAccess()) {
+        hideSubRequired(); navigate('chart');
+      } else {
+        showSubRequired();
+      }
+    } else {
+      hideSubRequired(); showPaywall();
+    }
 
     // Register service worker
     if ('serviceWorker' in navigator) {
