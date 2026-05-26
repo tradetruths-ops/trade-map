@@ -3105,11 +3105,13 @@
   }
 
   // Returns the correct Stripe link: affiliate's custom link > default
+  const DEFAULT_STRIPE = 'https://buy.stripe.com/8x2fZg9pA9nr8Yl9cJ4Rq00';
+
   function getActiveStripeLink() {
     const s   = getSettings();
     const ref = JSON.parse(localStorage.getItem(REF_KEY) || 'null');
     if (ref && ref.stripeLink) return ref.stripeLink;
-    return s.stripeLink || '#';
+    return s.stripeLink || DEFAULT_STRIPE;
   }
 
   // ═══════════════ ECONOMIC CALENDAR ═══════════════
