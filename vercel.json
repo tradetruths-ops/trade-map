@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/proxy/yahoo",    "destination": "/api/yahoo" },
+    { "source": "/proxy/spos",     "destination": "/api/spos" },
+    { "source": "/proxy/earnings", "destination": "/api/earnings" }
+  ]
+}
