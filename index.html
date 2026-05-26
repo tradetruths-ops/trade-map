@@ -2198,13 +2198,15 @@
     btn.textContent = 'Create Account'; btn.disabled = false;
     if (error) { showAuthMsg(error.message, '#f87171'); return; }
     const stripeBase = getActiveStripeLink();
+    const successUrl = encodeURIComponent(window.location.origin + '/?subscribed=1');
     const stripeUrl = stripeBase && stripeBase !== '#'
-      ? stripeBase + (stripeBase.includes('?') ? '&' : '?') + 'prefilled_email=' + encodeURIComponent(email)
+      ? stripeBase + (stripeBase.includes('?') ? '&' : '?') + 'prefilled_email=' + encodeURIComponent(email) + '&success_url=' + successUrl
       : null;
     hideAuthModal();
-    if (stripeUrl) window.open(stripeUrl, '_blank');
-    if (data.user && !data.session) {
-      showAuthMsg('Account created! Confirm your email, then sign in here after subscribing.', '#34d399');
+    if (stripeUrl) {
+      window.location.href = stripeUrl;
+    } else if (data.user && !data.session) {
+      showAuthMsg('Account created! Check your email to confirm, then sign in.', '#34d399');
     }
   }
 
@@ -3182,8 +3184,9 @@
     if (stripeBtn) {
       const stripeBase = getActiveStripeLink();
       const email = _sbUser?.email || '';
+      const successUrl = encodeURIComponent(window.location.origin + '/?subscribed=1');
       stripeBtn.href = email && stripeBase && stripeBase !== '#'
-        ? stripeBase + (stripeBase.includes('?') ? '&' : '?') + 'prefilled_email=' + encodeURIComponent(email)
+        ? stripeBase + (stripeBase.includes('?') ? '&' : '?') + 'prefilled_email=' + encodeURIComponent(email) + '&success_url=' + successUrl
         : stripeBase;
     }
     el.style.display = 'flex';
@@ -3916,6 +3919,14 @@
     const { data: { session } } = await _sb.auth.getSession();
     _sbUser = session?.user || null;
     updateAuthNav();
+
+    // Auto-check subscription when returning from Stripe checkout
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('subscribed') === '1' && _sbUser) {
+      history.replaceState({}, '', window.location.pathname);
+      showSubRequired();
+      setTimeout(() => checkSubscriptionRefresh(), 2500);
+    }
 
     if (isAdmin()) {
       hidePaywall(); hideSubRequired(); navigate('chart');
