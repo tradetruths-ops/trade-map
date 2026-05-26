@@ -1301,12 +1301,18 @@
           <p class="text-[11px] font-semibold uppercase tracking-[.22em] text-brand-300">Market Intelligence</p>
           <h1 class="serif text-2xl font-semibold text-white mt-0.5 tracking-tight uppercase">Stock List</h1>
         </div>
-        <!-- Search (hidden on earnings tab) -->
-        <div id="stocks-search-wrap" class="relative w-56">
+        <!-- Refresh + Search (hidden on earnings tab) -->
+        <div id="stocks-search-wrap" class="flex items-center gap-2">
+        <button onclick="refreshStocks()" id="stocks-refresh-btn" style="display:flex;align-items:center;gap:0.35rem;padding:0.35rem 0.75rem;border-radius:0.5rem;background:transparent;border:1px solid rgba(255,255,255,0.12);color:#94a3b8;font-size:0.75rem;font-weight:500;cursor:pointer;transition:background 0.15s,color 0.15s;flex-shrink:0;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#94a3b8'">
+          <svg id="stocks-refresh-icon" width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 1 1 8 2.5c1.6 0 3 .68 4 1.76M13.5 2.5v3h-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Refresh
+        </button>
+        <div class="relative w-56">
           <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
           <input id="stock-search" type="text" placeholder="Ticker or company…" class="input pl-8" oninput="renderPublicStocks()">
+        </div>
         </div>
       </div>
 
@@ -2308,6 +2314,12 @@
     } finally {
       btn.textContent = 'Auto-fill'; btn.disabled = false;
     }
+  }
+
+  function refreshStocks() {
+    const icon = document.getElementById('stocks-refresh-icon');
+    if (icon) { icon.style.transition = 'transform 0.6s'; icon.style.transform = 'rotate(360deg)'; setTimeout(() => { icon.style.transition = ''; icon.style.transform = ''; }, 650); }
+    enrichAllStocks();
   }
 
   async function enrichAllStocks() {
