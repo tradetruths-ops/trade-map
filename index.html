@@ -1129,7 +1129,7 @@
         <!-- Nav links -->
         <div class="flex items-center gap-0.5 flex-1">
           <button onclick="navigate('chart')"  id="nav-chart"  class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors">QQQ Chart</button>
-          <button onclick="navigate('nq')"     id="nav-nq"     class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors">NQ Futures</button>
+          <button onclick="navigate('nq')"     id="nav-nq"     class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors" style="display:none">NQ Futures</button>
           <button onclick="navigate('stocks')" id="nav-stocks" class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors">Stock List</button>
           <button onclick="navigate('spos')"   id="nav-spos"   class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors">SPOs</button>
           <button onclick="navigate('admin')"  id="nav-admin"  class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors">Admin</button>
@@ -1174,6 +1174,10 @@
             <button onclick="setInterval_('1wk','2y')"  id="iv-1wk" class="iv-btn">1W</button>
             <button onclick="setInterval_('1mo','5y')"  id="iv-1mo" class="iv-btn">1M</button>
           </div>
+          <button onclick="refreshChart()" id="chart-refresh-btn" style="display:flex;align-items:center;gap:0.35rem;padding:0.35rem 0.75rem;border-radius:0.5rem;background:transparent;border:1px solid rgba(255,255,255,0.12);color:#94a3b8;font-size:0.75rem;font-weight:500;cursor:pointer;transition:background 0.15s,color 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)';this.style.color='#fff'" onmouseout="this.style.background='transparent';this.style.color='#94a3b8'">
+            <svg id="chart-refresh-icon" width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 1 1 8 2.5c1.6 0 3 .68 4 1.76M13.5 2.5v3h-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Refresh
+          </button>
           <div class="flex items-center gap-2 text-xs text-slate-500">
             <span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
             Live · Yahoo Finance
@@ -1988,6 +1992,14 @@
   }
 
   // ═══════════════ CHART ═══════════════
+  function refreshChart() {
+    if (chart) { chart.remove(); chart = null; candleSeries = null; priceLines = []; }
+    chartReady = false;
+    const icon = document.getElementById('chart-refresh-icon');
+    if (icon) { icon.style.transition = 'transform 0.6s'; icon.style.transform = 'rotate(360deg)'; setTimeout(() => { icon.style.transition = ''; icon.style.transform = ''; }, 650); }
+    initChart();
+  }
+
   async function initChart() {
     const container = document.getElementById('tv-chart-container');
     if (chartReady) { updatePriceLines(); return; }
