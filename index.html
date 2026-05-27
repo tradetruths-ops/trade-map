@@ -2198,9 +2198,8 @@
     btn.textContent = 'Create Account'; btn.disabled = false;
     if (error) { showAuthMsg(error.message, '#f87171'); return; }
     const stripeBase = getActiveStripeLink();
-    const successUrl = encodeURIComponent(window.location.origin + '/?subscribed=1');
     const stripeUrl = stripeBase && stripeBase !== '#'
-      ? stripeBase + (stripeBase.includes('?') ? '&' : '?') + 'prefilled_email=' + encodeURIComponent(email) + '&success_url=' + successUrl
+      ? stripeBase + (stripeBase.includes('?') ? '&' : '?') + 'prefilled_email=' + encodeURIComponent(email)
       : null;
     hideAuthModal();
     if (stripeUrl) {
@@ -3184,9 +3183,8 @@
     if (stripeBtn) {
       const stripeBase = getActiveStripeLink();
       const email = _sbUser?.email || '';
-      const successUrl = encodeURIComponent(window.location.origin + '/?subscribed=1');
       stripeBtn.href = email && stripeBase && stripeBase !== '#'
-        ? stripeBase + (stripeBase.includes('?') ? '&' : '?') + 'prefilled_email=' + encodeURIComponent(email) + '&success_url=' + successUrl
+        ? stripeBase + (stripeBase.includes('?') ? '&' : '?') + 'prefilled_email=' + encodeURIComponent(email)
         : stripeBase;
     }
     el.style.display = 'flex';
