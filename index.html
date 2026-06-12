@@ -1878,9 +1878,14 @@
               <p class="text-[11px] text-slate-600 mt-1">Users enter this code to unlock the site. Change it monthly to rotate access.</p>
             </div>
             <div>
-              <label class="block text-xs font-medium text-slate-400 mb-1.5">Stripe Payment Link</label>
+              <label class="block text-xs font-medium text-slate-400 mb-1.5">Stripe Payment Link — Monthly</label>
               <input type="url" id="s-stripe-link" placeholder="https://buy.stripe.com/…" class="input">
-              <p class="text-[11px] text-slate-600 mt-1">Create a Payment Link in your Stripe Dashboard → paste it here.</p>
+              <p class="text-[11px] text-slate-600 mt-1">$75/mo plan — paste the monthly payment link from Stripe Dashboard.</p>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1.5">Stripe Payment Link — Annual</label>
+              <input type="url" id="s-stripe-link-yearly" placeholder="https://buy.stripe.com/…" class="input">
+              <p class="text-[11px] text-slate-600 mt-1">$700/yr plan — paste the annual payment link from Stripe Dashboard.</p>
             </div>
             <div>
               <label class="block text-xs font-medium text-slate-400 mb-1.5">Access duration (days)</label>
@@ -3342,10 +3347,11 @@
   function savePaywallSettings() {
     const code           = document.getElementById('s-access-code').value.trim().toUpperCase();
     const link           = document.getElementById('s-stripe-link').value.trim();
+    const linkYearly     = document.getElementById('s-stripe-link-yearly').value.trim();
     const days           = document.getElementById('s-access-days').value.trim();
     const discordFree    = document.getElementById('s-discord-free').value.trim();
     const discordMembers = document.getElementById('s-discord-members').value.trim();
-    saveSettings({ accessCode: code, stripeLink: link, accessDays: days || '35', discordFree, discordMembers });
+    saveSettings({ accessCode: code, stripeLink: link, stripeLinkYearly: linkYearly, accessDays: days || '35', discordFree, discordMembers });
     if (link)           document.querySelectorAll('[data-stripe-btn]').forEach(el => el.href = link);
     if (discordFree)    { document.getElementById('discord-free-btn').href = discordFree; }
     if (discordMembers) { document.getElementById('discord-members-btn').href = discordMembers; }
@@ -3355,9 +3361,10 @@
 
   function loadPaywallSettingsUI() {
     const s = getSettings();
-    if (s.accessCode)      document.getElementById('s-access-code').value    = s.accessCode;
-    if (s.stripeLink)      document.getElementById('s-stripe-link').value     = s.stripeLink;
-    if (s.accessDays)      document.getElementById('s-access-days').value     = s.accessDays;
+    if (s.accessCode)        document.getElementById('s-access-code').value         = s.accessCode;
+    if (s.stripeLink)        document.getElementById('s-stripe-link').value          = s.stripeLink;
+    if (s.stripeLinkYearly)  document.getElementById('s-stripe-link-yearly').value   = s.stripeLinkYearly;
+    if (s.accessDays)        document.getElementById('s-access-days').value          = s.accessDays;
     if (s.discordFree)     document.getElementById('s-discord-free').value    = s.discordFree;
     if (s.discordMembers)  document.getElementById('s-discord-members').value = s.discordMembers;
   }
