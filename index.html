@@ -228,7 +228,7 @@
     @media (max-width: 768px) {
       .lp-hero-grid { grid-template-columns: 1fr !important; }
       .lp-hero-h1  { font-size: 2.5rem !important; }
-      .lp-stats    { grid-template-columns: repeat(2,1fr) !important; }
+      .lp-stats    { grid-template-columns: repeat(3,1fr) !important; gap: 1rem !important; }
       .lp-features { grid-template-columns: 1fr !important; }
       .lp-steps    { grid-template-columns: 1fr !important; }
       .lp-chart    { display: none !important; }
@@ -502,6 +502,7 @@
                 <div style="display:flex;align-items:center;gap:0.4rem;"><span style="width:18px;height:2px;background:#a78bfa;border-radius:1px;display:inline-block;"></span><span style="font-size:0.6875rem;color:#7a8a9a;">Pivot</span></div>
                 <div style="display:flex;align-items:center;gap:0.4rem;"><span style="width:18px;height:2px;background:#34d399;border-radius:1px;display:inline-block;"></span><span style="font-size:0.6875rem;color:#7a8a9a;">Support</span></div>
               </div>
+              <p style="margin-top:0.875rem;padding-top:0.875rem;border-top:1px solid rgba(255,255,255,0.1);font-size:0.75rem;line-height:1.7;color:#7a8a9a;">Not your typical pivot points. The TradeMap levels are previous anticipated levels based on current option contracts. These are levels that can act as support — even temporarily — and/or resistance as markets work out the previous auctions.</p>
             </div>
             <!-- UPDATED DAILY badge -->
             <div style="position:absolute;top:-0.75rem;right:-0.75rem;background:linear-gradient(135deg,#9a7015,#c8880a);border-radius:0.75rem;padding:0.45rem 0.875rem;box-shadow:0 8px 24px rgba(175,130,15,0.4);">
@@ -514,7 +515,7 @@
 
     <!-- STATS BAR -->
     <div style="background:rgba(10,10,10,1);border-top:1px solid rgba(255,255,255,0.1);border-bottom:1px solid rgba(255,255,255,0.1);">
-      <div class="lp-stats" style="max-width:1120px;margin:0 auto;padding:2rem 1.5rem;display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;text-align:center;">
+      <div class="lp-stats" style="max-width:1120px;margin:0 auto;padding:2rem 1.5rem;display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;text-align:center;">
         <div>
           <div class="mono" style="font-size:1.875rem;font-weight:700;color:white;letter-spacing:-0.02em;">7+</div>
           <div style="font-size:0.8125rem;color:#64748b;margin-top:0.25rem;">Chart Timeframes</div>
@@ -526,10 +527,6 @@
         <div>
           <div class="mono" style="font-size:1.875rem;font-weight:700;color:#c8880a;letter-spacing:-0.02em;">$75</div>
           <div style="font-size:0.8125rem;color:#64748b;margin-top:0.25rem;">Per Month, All-In</div>
-        </div>
-        <div>
-          <div class="mono" style="font-size:1.875rem;font-weight:700;color:white;letter-spacing:-0.02em;">35</div>
-          <div style="font-size:0.8125rem;color:#64748b;margin-top:0.25rem;">Days Per Access Code</div>
         </div>
       </div>
     </div>
