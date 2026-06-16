@@ -1151,7 +1151,7 @@
           <button onclick="navigate('stocks')" id="nav-stocks" class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors">Stock List</button>
           <button onclick="navigate('spos')"   id="nav-spos"   class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors">SPOs</button>
           <button onclick="navigate('info')"    id="nav-info"    class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors">How To Use</button>
-          <button onclick="navigate('admin')"  id="nav-admin"   class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors">Admin</button>
+          <button onclick="navigate('contact')" id="nav-contact" class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors" style="display:none">Contact</button>
           <button onclick="navigate('profile')" id="nav-profile" class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors" style="display:none">
             <span id="nav-profile-label">Profile</span>
           </button>
@@ -1561,6 +1561,64 @@
           </div>
         </div>
       </div>
+
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       PAGE: CONTACT (subscribers)
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div id="page-contact" class="page">
+    <div class="mx-auto max-w-2xl px-5 py-10 sm:px-8 space-y-6">
+
+      <div>
+        <p class="text-[11px] font-semibold uppercase tracking-[.22em] text-brand-300">Support</p>
+        <h1 class="serif text-2xl font-semibold text-white mt-0.5 tracking-tight uppercase">Contact Us</h1>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Questions about your subscription, billing, or the platform? Send us a message and we'll get back to you within one business day.</p>
+      </div>
+
+      <div id="app-ct-form-card" class="card p-6 space-y-4">
+        <div>
+          <label style="display:block;font-size:0.75rem;font-weight:500;color:#7a8a9a;letter-spacing:0.04em;margin-bottom:0.5rem;">YOUR EMAIL</label>
+          <input id="app-ct-email" type="email" class="input" style="width:100%;" disabled>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.75rem;font-weight:500;color:#7a8a9a;letter-spacing:0.04em;margin-bottom:0.5rem;">SUBJECT</label>
+          <select id="app-ct-subject" class="input" style="width:100%;">
+            <option value="">Select a topic…</option>
+            <option value="Subscription question">Subscription question</option>
+            <option value="Billing">Billing</option>
+            <option value="Chart or data question">Chart or data question</option>
+            <option value="Technical issue">Technical issue</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.75rem;font-weight:500;color:#7a8a9a;letter-spacing:0.04em;margin-bottom:0.5rem;">MESSAGE</label>
+          <textarea id="app-ct-message" rows="5" placeholder="Tell us how we can help…" class="input" style="width:100%;resize:vertical;min-height:120px;"></textarea>
+        </div>
+        <button onclick="submitAppContact()" style="display:flex;align-items:center;justify-content:center;gap:0.625rem;width:100%;padding:0.875rem;border-radius:0.875rem;background:linear-gradient(135deg,#9a7015,#c8880a);color:white;font-size:0.9375rem;font-weight:600;border:none;cursor:pointer;box-shadow:0 8px 32px rgba(175,130,15,0.3);transition:transform 0.15s,box-shadow 0.15s;" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 14px 44px rgba(175,130,15,0.42)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 8px 32px rgba(175,130,15,0.3)'">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          Send Message
+        </button>
+        <p id="app-ct-error" class="hidden text-xs" style="color:#f87171;text-align:center;"></p>
+      </div>
+
+      <!-- Confirmation panel, shown after a message is sent -->
+      <div id="app-ct-sent-card" class="hidden card p-8" style="text-align:center;">
+        <div style="width:3.5rem;height:3.5rem;border-radius:50%;background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#34d399" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2 class="serif text-xl font-semibold text-white mb-2" style="letter-spacing:-0.02em;">Message Sent</h2>
+        <p class="text-sm text-slate-400 leading-relaxed mb-6">Your email client should have opened with your message ready to send. We'll reply within one business day.</p>
+        <button onclick="resetAppContact()" style="padding:0.625rem 1.5rem;border-radius:0.75rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;font-size:0.875rem;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
+          Send another message
+        </button>
+      </div>
+
+      <p style="text-align:center;font-size:0.8125rem;color:#64748b;">
+        Or email us directly at <a href="mailto:tradetruths@gmail.com" style="color:#d4a832;text-decoration:none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">tradetruths@gmail.com</a>
+      </p>
 
     </div>
   </div>
@@ -2161,6 +2219,8 @@
 
   function updateAuthNav() {
     const btn = document.getElementById('nav-profile');
+    const contactBtn = document.getElementById('nav-contact');
+    if (contactBtn) contactBtn.style.display = _sbUser ? '' : 'none';
     if (!btn) return;
     if (_sbUser) {
       btn.style.display = '';
@@ -2358,6 +2418,7 @@
     if (page === 'spos')    { setSPOTab(_spoTab); loadSPOs(); }
     if (page === 'admin')   initAdminPage();
     if (page === 'profile') renderProfile();
+    if (page === 'contact') renderAppContact();
   }
 
   // ═══════════════ INTERVAL ═══════════════
@@ -3299,6 +3360,35 @@
     document.getElementById('admin-badge').classList.remove('hidden');
   }
 
+  function renderAppContact() {
+    const emailEl = document.getElementById('app-ct-email');
+    if (emailEl) emailEl.value = _sbUser?.email || '';
+    document.getElementById('app-ct-error')?.classList.add('hidden');
+    document.getElementById('app-ct-form-card')?.classList.remove('hidden');
+    document.getElementById('app-ct-sent-card')?.classList.add('hidden');
+  }
+
+  function resetAppContact() {
+    document.getElementById('app-ct-subject').value = '';
+    document.getElementById('app-ct-message').value = '';
+    document.getElementById('app-ct-form-card')?.classList.remove('hidden');
+    document.getElementById('app-ct-sent-card')?.classList.add('hidden');
+  }
+
+  function submitAppContact() {
+    const email   = _sbUser?.email || '';
+    const subject = document.getElementById('app-ct-subject').value;
+    const message = document.getElementById('app-ct-message').value.trim();
+    const err = document.getElementById('app-ct-error');
+    err.classList.add('hidden');
+    if (!message) { err.textContent = 'Please enter a message.'; err.classList.remove('hidden'); return; }
+    const sub = subject ? encodeURIComponent(subject) : encodeURIComponent('Trade Map Support Request');
+    const body = encodeURIComponent(`Email: ${email}\n\n${message}`);
+    window.location.href = `mailto:tradetruths@gmail.com?subject=${sub}&body=${body}`;
+    document.getElementById('app-ct-form-card')?.classList.add('hidden');
+    document.getElementById('app-ct-sent-card')?.classList.remove('hidden');
+  }
+
   function submitContact() {
     const name    = document.getElementById('ct-name').value.trim();
     const email   = document.getElementById('ct-email').value.trim();
@@ -3312,7 +3402,7 @@
     if (!message) { err.textContent = 'Please enter a message.';    err.classList.remove('hidden'); return; }
     const sub = subject ? encodeURIComponent(subject) : encodeURIComponent('Trade Map Enquiry');
     const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
-    window.open(`mailto:tradetruths@gmail.com?subject=${sub}&body=${body}`, '_blank');
+    window.location.href = `mailto:tradetruths@gmail.com?subject=${sub}&body=${body}`;
     ok.textContent = "Your email client should open now. We'll reply within one business day.";
     ok.classList.remove('hidden');
   }
