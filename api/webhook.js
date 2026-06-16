@@ -62,8 +62,13 @@ module.exports = async function handler(req, res) {
 
     switch (event.type) {
       case 'checkout.session.completed': {
-        const email = obj.customer_details?.email;
         const customerId = obj.customer;
+        const supabaseUserId = obj.client_reference_id || obj.metadata?.supabase_user_id;
+        if (supabaseUserId) {
+          await setStatus(adminSb, supabaseUserId, 'active', customerId);
+          break;
+        }
+        const email = obj.customer_details?.email;
         if (!email) break;
         const user = await findUserByEmail(adminSb, email);
         if (user) await setStatus(adminSb, user.id, 'active', customerId);

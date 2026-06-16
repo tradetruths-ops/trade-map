@@ -2111,13 +2111,13 @@
       <p class="text-sm text-slate-400 leading-relaxed mb-1">Signed in as <span id="sub-req-email" class="text-slate-300 font-medium"></span></p>
       <p class="text-sm text-slate-500 leading-relaxed mb-8">An active Trade Map subscription is required to access the platform. Subscribe below to get instant access.</p>
       <div class="space-y-3">
-        <a id="sub-req-stripe-btn-yearly" href="#" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.875rem 2rem;border-radius:0.875rem;background:linear-gradient(135deg,#9a7015,#c8880a);color:white;font-size:0.9375rem;font-weight:600;text-decoration:none;transition:opacity 0.15s;position:relative;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+        <button id="sub-req-stripe-btn-yearly" onclick="goToCheckout('yearly','sub-req-stripe-btn-yearly')" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;width:100%;padding:0.875rem 2rem;border-radius:0.875rem;background:linear-gradient(135deg,#9a7015,#c8880a);border:none;color:white;font-size:0.9375rem;font-weight:600;cursor:pointer;transition:opacity 0.15s;position:relative;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
           <span style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#34d399;color:#052e16;font-size:0.6rem;font-weight:700;letter-spacing:0.06em;padding:0.15rem 0.6rem;border-radius:9999px;white-space:nowrap;text-transform:uppercase;">Best Value — Save $200</span>
           Annual Access — $700/yr
-        </a>
-        <a id="sub-req-stripe-btn" href="#" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.75rem 2rem;border-radius:0.875rem;background:rgba(175,130,15,0.1);border:1px solid rgba(175,130,15,0.3);color:#d4a832;font-size:0.875rem;font-weight:500;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='rgba(175,130,15,0.18)'" onmouseout="this.style.background='rgba(175,130,15,0.1)'">
+        </button>
+        <button id="sub-req-stripe-btn" onclick="goToCheckout('monthly','sub-req-stripe-btn')" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;width:100%;padding:0.75rem 2rem;border-radius:0.875rem;background:rgba(175,130,15,0.1);border:1px solid rgba(175,130,15,0.3);color:#d4a832;font-size:0.875rem;font-weight:500;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='rgba(175,130,15,0.18)'" onmouseout="this.style.background='rgba(175,130,15,0.1)'">
           Monthly — $75/mo
-        </a>
+        </button>
         <button onclick="checkSubscriptionRefresh()" id="sub-refresh-btn" style="width:100%;padding:0.75rem;border-radius:0.75rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);color:#94a3b8;font-size:0.875rem;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.04)'">
           Already paid? Check access
         </button>
@@ -2223,15 +2223,11 @@
     const { data, error } = await _sb.auth.signUp({ email, password, options: { data: { name } } });
     btn.textContent = 'Create Account'; btn.disabled = false;
     if (error) { showAuthMsg(error.message, '#f87171'); return; }
-    const stripeBase = _checkoutPlan === 'yearly' ? getYearlyStripeLink() : getActiveStripeLink();
-    const stripeUrl = stripeBase && stripeBase !== '#'
-      ? stripeBase + (stripeBase.includes('?') ? '&' : '?') + 'prefilled_email=' + encodeURIComponent(email)
-      : null;
-    hideAuthModal();
-    if (stripeUrl) {
-      window.location.href = stripeUrl;
-    } else if (data.user && !data.session) {
-      showAuthMsg('Account created! Check your email to confirm, then sign in.', '#34d399');
+    if (data.session) {
+      hideAuthModal();
+      await goToCheckout(_checkoutPlan);
+    } else if (data.user) {
+      showAuthMsg('Account created! Check your email to confirm, then sign in to subscribe.', '#34d399');
     }
   }
 
@@ -3205,14 +3201,6 @@
     if (!el) return;
     const emailEl = document.getElementById('sub-req-email');
     if (emailEl) emailEl.textContent = _sbUser?.email || '';
-    const email = _sbUser?.email || '';
-    const buildLink = base => email && base && base !== '#'
-      ? base + (base.includes('?') ? '&' : '?') + 'prefilled_email=' + encodeURIComponent(email)
-      : base;
-    const monthly = document.getElementById('sub-req-stripe-btn');
-    if (monthly) monthly.href = buildLink(getActiveStripeLink());
-    const yearly = document.getElementById('sub-req-stripe-btn-yearly');
-    if (yearly) yearly.href = buildLink(getYearlyStripeLink());
     el.style.display = 'flex';
   }
 
@@ -3492,6 +3480,37 @@
   function subscribePlan(plan) {
     _checkoutPlan = plan || 'monthly';
     showAuthModal('signup');
+  }
+
+  // Creates a Stripe Checkout Session tied to the Supabase user id (server-side),
+  // so the webhook can activate the account directly by id instead of matching on email.
+  async function goToCheckout(plan, btnId) {
+    const btn = btnId ? document.getElementById(btnId) : null;
+    const prevHtml = btn ? btn.innerHTML : null;
+    if (btn) { btn.innerHTML = 'Redirecting to checkout…'; btn.style.pointerEvents = 'none'; btn.style.opacity = '0.7'; }
+    try {
+      const { data: { session } } = await _sb.auth.getSession();
+      if (!session) { showAuthModal('signin'); return; }
+      const resp = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + session.access_token },
+        body: JSON.stringify({ plan })
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (resp.ok && data.url) { window.location.href = data.url; return; }
+      throw new Error(data.error || 'Checkout unavailable');
+    } catch (err) {
+      const base = plan === 'yearly' ? getYearlyStripeLink() : getActiveStripeLink();
+      const email = _sbUser?.email || '';
+      if (base && base !== '#') {
+        window.location.href = email
+          ? base + (base.includes('?') ? '&' : '?') + 'prefilled_email=' + encodeURIComponent(email)
+          : base;
+        return;
+      }
+      alert('Checkout is not available right now. Please contact support.');
+      if (btn) { btn.innerHTML = prevHtml; btn.style.pointerEvents = ''; btn.style.opacity = ''; }
+    }
   }
 
   // ═══════════════ ECONOMIC CALENDAR ═══════════════
