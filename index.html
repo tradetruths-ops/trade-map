@@ -1706,7 +1706,10 @@
             <p class="text-[11px] font-semibold uppercase tracking-[.22em] text-brand-300">Admin Panel</p>
             <h1 class="serif text-2xl font-semibold text-white mt-0.5 tracking-tight uppercase">Manage Content</h1>
           </div>
-          <button onclick="doLogout()" class="btn btn-ghost px-4 py-2 rounded-lg text-sm">Sign out</button>
+          <div class="flex items-center gap-2">
+            <button onclick="syncAllToSubscribers()" id="admin-sync-btn" class="btn btn-ghost px-4 py-2 rounded-lg text-sm">Sync to Subscribers</button>
+            <button onclick="doLogout()" class="btn btn-ghost px-4 py-2 rounded-lg text-sm">Sign out</button>
+          </div>
         </div>
 
         <!-- Tabs -->
@@ -2420,6 +2423,22 @@
     try { renderPublicStocks(); } catch {}
     try { renderCalPublic(); } catch {}
     try { updatePriceLines(); } catch {}
+  }
+
+  async function syncAllToSubscribers() {
+    const btn = document.getElementById('admin-sync-btn');
+    const prevText = btn.textContent;
+    btn.textContent = 'Syncing…'; btn.disabled = true;
+    try {
+      pushRemoteData('levels', getLevels());
+      pushRemoteData('stocks', getStocks());
+      pushRemoteData('calendar', getCalEvents());
+      await new Promise(r => setTimeout(r, 600));
+      btn.textContent = 'Synced ✓';
+    } catch {
+      btn.textContent = 'Sync failed';
+    }
+    setTimeout(() => { btn.textContent = prevText; btn.disabled = false; }, 2000);
   }
   const uid         = () => Math.random().toString(36).slice(2,9) + Date.now().toString(36);
   const today       = () => new Date().toISOString().slice(0,10);
