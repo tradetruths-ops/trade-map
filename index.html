@@ -2385,9 +2385,42 @@
   const getAdminPw  = () => localStorage.getItem(PW_KEY) || 'trademap2026';
   const isAdmin     = () => sessionStorage.getItem(SESSION_KEY) === '1';
   const getLevels   = () => JSON.parse(localStorage.getItem(LEVELS_KEY) || '[]');
-  const saveLevels  = v  => localStorage.setItem(LEVELS_KEY, JSON.stringify(v));
+  const saveLevels  = v  => { localStorage.setItem(LEVELS_KEY, JSON.stringify(v)); pushRemoteData('levels', v); };
   const getStocks   = () => JSON.parse(localStorage.getItem(STOCKS_KEY) || '[]');
-  const saveStocks  = v  => localStorage.setItem(STOCKS_KEY, JSON.stringify(v));
+  const saveStocks  = v  => { localStorage.setItem(STOCKS_KEY, JSON.stringify(v)); pushRemoteData('stocks', v); };
+
+  // ═══════════════ SHARED REMOTE DATA (Levels / Stocks / Calendar) ═══════════════
+  // Only the logged-in admin pushes writes to the shared backend. Ordinary
+  // subscriber actions (e.g. the public "Refresh" button on the Stock List
+  // page) only ever touch localStorage, so a non-admin browser can never
+  // overwrite the data everyone else sees.
+  function pushRemoteData(key, value) {
+    if (!isAdmin()) return;
+    fetch('/api/app-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, value, adminPassword: getAdminPw() }),
+    }).catch(() => {});
+  }
+
+  async function pullRemoteData() {
+    const map = { levels: LEVELS_KEY, stocks: STOCKS_KEY, calendar: CAL_KEY };
+    for (const key of Object.keys(map)) {
+      try {
+        const resp = await fetch(`/api/app-data?key=${key}`);
+        if (!resp.ok) continue;
+        const { value } = await resp.json();
+        if (value !== null) localStorage.setItem(map[key], JSON.stringify(value));
+      } catch {}
+    }
+  }
+
+  function refreshAllViews() {
+    try { renderLevels(); } catch {}
+    try { renderPublicStocks(); } catch {}
+    try { renderCalPublic(); } catch {}
+    try { updatePriceLines(); } catch {}
+  }
   const uid         = () => Math.random().toString(36).slice(2,9) + Date.now().toString(36);
   const today       = () => new Date().toISOString().slice(0,10);
   const fmtDate = d => {
@@ -3039,10 +3072,11 @@
     document.getElementById('admin-badge').classList.add('hidden');
   }
 
-  function showDash() {
+  async function showDash() {
     document.getElementById('admin-login').classList.add('hidden');
     document.getElementById('admin-dash').classList.remove('hidden');
     document.getElementById('admin-badge').classList.remove('hidden');
+    await pullRemoteData();
     setAdminTab('levels');
   }
 
@@ -3641,10 +3675,10 @@
   function getCalEvents() {
     const stored = localStorage.getItem(CAL_KEY);
     if (stored) return JSON.parse(stored);
-    saveCalEvents(CAL_DEFAULTS);
+    localStorage.setItem(CAL_KEY, JSON.stringify(CAL_DEFAULTS));
     return CAL_DEFAULTS;
   }
-  function saveCalEvents(arr) { localStorage.setItem(CAL_KEY, JSON.stringify(arr)); }
+  function saveCalEvents(arr) { localStorage.setItem(CAL_KEY, JSON.stringify(arr)); pushRemoteData('calendar', arr); }
 
   function addCalEvent() {
     const date   = document.getElementById('cal-date').value;
@@ -4072,7 +4106,8 @@
     document.getElementById('spo-tab-priced').classList.add('is-active');
     detectAffiliateRef();
     applyDiscordLinks();
-    renderCalPublic();
+    await pullRemoteData();
+    refreshAllViews();
 
     // Check for Supabase session (e.g. after password reset redirect)
     const { data: { session } } = await _sb.auth.getSession();
