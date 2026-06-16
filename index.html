@@ -3375,21 +3375,30 @@
     document.getElementById('app-ct-sent-card')?.classList.add('hidden');
   }
 
-  function submitAppContact() {
+  async function submitAppContact() {
     const email   = _sbUser?.email || '';
     const subject = document.getElementById('app-ct-subject').value;
     const message = document.getElementById('app-ct-message').value.trim();
     const err = document.getElementById('app-ct-error');
     err.classList.add('hidden');
     if (!message) { err.textContent = 'Please enter a message.'; err.classList.remove('hidden'); return; }
-    const sub = subject ? encodeURIComponent(subject) : encodeURIComponent('Trade Map Support Request');
-    const body = encodeURIComponent(`Email: ${email}\n\n${message}`);
-    window.location.href = `mailto:tradetruths@gmail.com?subject=${sub}&body=${body}`;
+    try {
+      const resp = await fetch('/api/send-contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, subject, message })
+      });
+      if (!resp.ok) throw new Error('send failed');
+    } catch {
+      const sub = subject ? encodeURIComponent(subject) : encodeURIComponent('Trade Map Support Request');
+      const body = encodeURIComponent(`Email: ${email}\n\n${message}`);
+      window.location.href = `mailto:tradetruths@gmail.com?subject=${sub}&body=${body}`;
+    }
     document.getElementById('app-ct-form-card')?.classList.add('hidden');
     document.getElementById('app-ct-sent-card')?.classList.remove('hidden');
   }
 
-  function submitContact() {
+  async function submitContact() {
     const name    = document.getElementById('ct-name').value.trim();
     const email   = document.getElementById('ct-email').value.trim();
     const subject = document.getElementById('ct-subject').value;
@@ -3400,10 +3409,20 @@
     if (!name)    { err.textContent = 'Please enter your name.';    err.classList.remove('hidden'); return; }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Please enter a valid email address.'; err.classList.remove('hidden'); return; }
     if (!message) { err.textContent = 'Please enter a message.';    err.classList.remove('hidden'); return; }
-    const sub = subject ? encodeURIComponent(subject) : encodeURIComponent('Trade Map Enquiry');
-    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
-    window.location.href = `mailto:tradetruths@gmail.com?subject=${sub}&body=${body}`;
-    ok.textContent = "Your email client should open now. We'll reply within one business day.";
+    try {
+      const resp = await fetch('/api/send-contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, subject, message })
+      });
+      if (!resp.ok) throw new Error('send failed');
+      ok.textContent = "Your message has been sent. We'll reply within one business day.";
+    } catch {
+      const sub = subject ? encodeURIComponent(subject) : encodeURIComponent('Trade Map Enquiry');
+      const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
+      window.location.href = `mailto:tradetruths@gmail.com?subject=${sub}&body=${body}`;
+      ok.textContent = "Your email client should open now. We'll reply within one business day.";
+    }
     ok.classList.remove('hidden');
   }
 
