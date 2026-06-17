@@ -1300,6 +1300,23 @@
         </div>
       </div>
 
+      <!-- Economic Calendar -->
+      <div class="card" style="overflow:hidden;">
+        <div style="padding:1.25rem 1.25rem 0.875rem;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:baseline;gap:0.75rem;">
+          <h2 class="text-sm font-semibold text-white">Economic Calendar</h2>
+          <span style="font-size:0.7rem;color:#475569;">Upcoming US macro events · All times Eastern</span>
+        </div>
+        <div style="display:grid;grid-template-columns:110px 80px 1fr auto;gap:0;padding:0.5rem 1.25rem;border-bottom:1px solid rgba(255,255,255,0.04);">
+          <span style="font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#334155;">Date</span>
+          <span style="font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#334155;">Time</span>
+          <span style="font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#334155;">Event</span>
+          <span style="font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#334155;">Impact</span>
+        </div>
+        <div id="chart-cal-rows">
+          <div style="padding:2rem;text-align:center;color:#334155;font-size:0.8rem;">Loading…</div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -2518,6 +2535,7 @@
     try { renderLevels(); } catch {}
     try { renderPublicStocks(); } catch {}
     try { renderCalPublic(); } catch {}
+    try { renderCalendarChart(); } catch {}
     try { renderDailyNote(); } catch {}
     try { updatePriceLines(); } catch {}
   }
@@ -2563,7 +2581,7 @@
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
     document.getElementById('nav-' + page)?.classList.add('active');
 
-    if (page === 'chart')    { initChart(); renderLevels(); renderDailyNote(); }
+    if (page === 'chart')    { initChart(); renderLevels(); renderDailyNote(); renderCalendarChart(); }
     if (page === 'nq')       { initNQChart(); }
     if (page === 'stocks')   { setStocksTab('watchlist'); renderPublicStocks(); }
     if (page === 'spos')     { setSPOTab(_spoTab); loadSPOs(); }
@@ -3832,9 +3850,9 @@
     renderCalPublic();
   }
 
-  // ═══════════════ CALENDAR APP PAGE ═══════════════
-  function renderCalendarPage() {
-    const rows = document.getElementById('cal-rows-app');
+  // ═══════════════ CALENDAR RENDER (shared by chart page and calendar page) ═══════════════
+  function renderCalendarInto(containerId) {
+    const rows = document.getElementById(containerId);
     if (!rows) return;
     const todayStr = today();
     const events = getCalEvents()
@@ -3842,15 +3860,12 @@
       .sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
       .slice(0, 16);
 
-    const cta = document.getElementById('cal-page-cta');
-    if (cta) cta.style.display = (_sbUser && !hasAccess()) ? 'flex' : 'none';
-
     const impactCfg = {
       high:   { dot:'#f59e0b', label:'High',   bg:'rgba(245,158,11,0.1)',  border:'rgba(245,158,11,0.25)', text:'#f59e0b' },
       medium: { dot:'#94a3b8', label:'Medium', bg:'rgba(148,163,184,0.07)',border:'rgba(148,163,184,0.15)', text:'#94a3b8' },
       low:    { dot:'#475569', label:'Low',    bg:'rgba(71,85,105,0.07)',  border:'rgba(71,85,105,0.15)',  text:'#475569' },
     };
-    const fmtDate = d => {
+    const fmtD = d => {
       const [y,m,day] = d.split('-');
       return new Date(y, m-1, day).toLocaleDateString('en-US', { month:'short', day:'numeric', weekday:'short' });
     };
@@ -3867,7 +3882,7 @@
       lastDate = e.date;
       const border = i < events.length - 1 ? 'border-bottom:1px solid rgba(255,255,255,0.04);' : '';
       const datecell = isNew
-        ? `<span style="font-size:0.8rem;font-weight:500;color:#94a3b8;">${fmtDate(e.date)}</span>`
+        ? `<span style="font-size:0.8rem;font-weight:500;color:#94a3b8;">${fmtD(e.date)}</span>`
         : `<span style="color:transparent;user-select:none;">—</span>`;
       return `
         <div style="display:grid;grid-template-columns:110px 80px 1fr auto;gap:0;padding:0.75rem 1.25rem;align-items:center;${border}${isNew && i > 0 ? 'border-top:1px solid rgba(255,255,255,0.04);' : ''}">
@@ -3884,6 +3899,16 @@
           </div>
         </div>`;
     }).join('');
+  }
+
+  function renderCalendarPage() {
+    const cta = document.getElementById('cal-page-cta');
+    if (cta) cta.style.display = (_sbUser && !hasAccess()) ? 'flex' : 'none';
+    renderCalendarInto('cal-rows-app');
+  }
+
+  function renderCalendarChart() {
+    renderCalendarInto('chart-cal-rows');
   }
 
   // ═══════════════ DAILY NOTE ═══════════════
