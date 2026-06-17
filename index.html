@@ -5,6 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Trade Map — QQQ Dashboard</title>
   <meta name="description" content="Professional QQQ trading intelligence — daily levels, chart analysis, and market insights." />
+  <link rel="canonical" href="https://thetrademap.app/" />
+  <meta name="robots" content="index, follow" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://thetrademap.app/" />
+  <meta property="og:title" content="Trade Map — QQQ Trading Intelligence" />
+  <meta property="og:description" content="Professional QQQ trading intelligence — daily levels, chart analysis, and market insights." />
+  <meta property="og:image" content="https://thetrademap.app/icons/og-image.png" />
+  <meta property="og:site_name" content="Trade Map" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Trade Map — QQQ Trading Intelligence" />
+  <meta name="twitter:description" content="Professional QQQ trading intelligence — daily levels, chart analysis, and market insights." />
+  <meta name="twitter:image" content="https://thetrademap.app/icons/og-image.png" />
+
   <meta name="theme-color" content="#060606" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -1136,7 +1151,8 @@
 
         <!-- Nav links -->
         <div class="flex items-center gap-0.5 flex-1">
-          <button onclick="navigate('chart')"  id="nav-chart"  class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors">QQQ Chart</button>
+          <button onclick="navigate('chart')"    id="nav-chart"    class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors">QQQ Chart</button>
+          <button onclick="navigate('calendar')" id="nav-calendar" class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors" style="display:none">Calendar</button>
           <button onclick="navigate('nq')"     id="nav-nq"     class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors" style="display:none">NQ Futures</button>
           <button onclick="navigate('stocks')" id="nav-stocks" class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors">Stock List</button>
           <button onclick="navigate('spos')"   id="nav-spos"   class="nav-link px-4 py-3 text-sm text-slate-400 hover:text-slate-200 transition-colors">SPOs</button>
@@ -1210,6 +1226,30 @@
         </p>
       </div>
 
+      <!-- Daily Commentary -->
+      <div id="daily-note-card" class="card p-5 space-y-3">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h2 class="text-sm font-semibold text-white">Daily Commentary</h2>
+            <p class="text-[11px] text-slate-500 mt-0.5">Trader's notes for today's session</p>
+          </div>
+          <span id="daily-note-date" class="mono text-[11px] text-slate-600"></span>
+        </div>
+        <!-- Admin write UI (only visible to admin) -->
+        <div id="daily-note-admin" class="hidden space-y-2">
+          <textarea id="daily-note-input" rows="4" placeholder="Write today's QQQ commentary here…" class="input w-full" style="resize:vertical;min-height:90px;font-size:0.875rem;line-height:1.6;"></textarea>
+          <div class="flex items-center gap-2">
+            <button onclick="saveDailyNote()" class="btn btn-primary px-4 py-1.5 rounded-lg text-xs">Publish Note</button>
+            <span id="daily-note-msg" class="text-xs text-slate-500 hidden"></span>
+          </div>
+        </div>
+        <!-- Subscriber read UI -->
+        <div id="daily-note-body">
+          <p id="daily-note-text" class="text-sm text-slate-300 leading-relaxed" style="white-space:pre-wrap;"></p>
+          <p id="daily-note-empty" class="text-sm text-slate-600 hidden">No commentary posted yet for today.</p>
+        </div>
+      </div>
+
       <!-- Daily Levels Panel -->
       <div class="card p-5">
         <!-- Panel header + filters -->
@@ -1257,6 +1297,43 @@
         <div id="levels-grid" class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"></div>
         <div id="levels-empty" class="hidden py-10 text-center text-sm text-slate-600">
           No levels match the filter. Admin can add levels in the Admin panel.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       PAGE: CALENDAR (signed-in, free)
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+  <div id="page-calendar" class="page">
+    <div class="mx-auto max-w-3xl px-5 py-8 sm:px-8 space-y-5">
+
+      <!-- Subscribe CTA (only shown to non-subscribers) -->
+      <div id="cal-page-cta" class="hidden" style="padding:1rem 1.25rem;border-radius:0.875rem;background:linear-gradient(135deg,rgba(154,112,21,0.18),rgba(200,136,10,0.1));border:1px solid rgba(212,168,50,0.3);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+        <div>
+          <p class="text-sm font-semibold text-white">Unlock full access</p>
+          <p class="text-xs text-slate-400 mt-0.5">Subscribe to get the QQQ chart, daily levels, stock list, and daily commentary.</p>
+        </div>
+        <button onclick="goToCheckout('monthly','cal-cta-btn')" id="cal-cta-btn" style="padding:0.5rem 1.25rem;border-radius:0.625rem;background:linear-gradient(135deg,#9a7015,#c8880a);border:none;color:white;font-size:0.8125rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Subscribe — $75/mo</button>
+      </div>
+
+      <!-- Header -->
+      <div>
+        <p class="text-[11px] font-semibold uppercase tracking-[.22em] text-brand-300">US Macro Events · All times Eastern</p>
+        <h1 class="serif text-2xl font-semibold text-white mt-0.5 tracking-tight">Economic Calendar</h1>
+      </div>
+
+      <!-- Calendar table -->
+      <div class="card" style="overflow:hidden;">
+        <div style="display:grid;grid-template-columns:110px 80px 1fr auto;gap:0;padding:0.625rem 1.25rem;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <span style="font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#334155;">Date</span>
+          <span style="font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#334155;">Time</span>
+          <span style="font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#334155;">Event</span>
+          <span style="font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#334155;">Impact</span>
+        </div>
+        <div id="cal-rows-app">
+          <div style="padding:3rem;text-align:center;color:#334155;font-size:0.875rem;">Loading calendar…</div>
         </div>
       </div>
 
@@ -2026,6 +2103,19 @@
         <!-- ── Tab: Calendar ── -->
         <div id="apanel-calendar" class="atab-panel hidden space-y-4">
 
+          <!-- Daily Commentary input -->
+          <div class="card p-6 space-y-4">
+            <div>
+              <h3 class="text-sm font-semibold text-white">Daily Commentary</h3>
+              <p class="text-[11px] text-slate-500 mt-0.5">Publish today's QQQ notes — visible to all subscribers on the chart page.</p>
+            </div>
+            <textarea id="admin-note-input" rows="5" placeholder="Write today's commentary here…" class="input w-full" style="resize:vertical;min-height:100px;font-size:0.875rem;line-height:1.6;"></textarea>
+            <div class="flex items-center gap-3">
+              <button onclick="adminSaveDailyNote()" class="btn btn-primary px-5 py-2 rounded-lg text-sm">Publish</button>
+              <span id="admin-note-msg" class="text-xs text-slate-500 hidden"></span>
+            </div>
+          </div>
+
           <!-- Add event form -->
           <div class="card p-6 space-y-4">
             <div>
@@ -2198,11 +2288,11 @@
       hideSubRequired();
     } else if (_sbUser) {
       hidePaywall();
+      hideSubRequired();
       if (hasAccess()) {
-        hideSubRequired();
         if (!document.querySelector('.page.active')) navigate('chart');
       } else {
-        showSubRequired();
+        navigate('calendar');
       }
     } else {
       hideSubRequired();
@@ -2213,7 +2303,9 @@
   function updateAuthNav() {
     const btn = document.getElementById('nav-profile');
     const contactBtn = document.getElementById('nav-contact');
+    const calBtn = document.getElementById('nav-calendar');
     if (contactBtn) contactBtn.style.display = _sbUser ? '' : 'none';
+    if (calBtn) calBtn.style.display = _sbUser ? '' : 'none';
     if (!btn) return;
     if (_sbUser) {
       btn.style.display = '';
@@ -2413,12 +2505,20 @@
         if (value !== null) localStorage.setItem(map[key], JSON.stringify(value));
       } catch {}
     }
+    try {
+      const resp = await fetch('/api/app-data?key=daily_note');
+      if (resp.ok) {
+        const { value } = await resp.json();
+        if (value !== null) storeDailyNote(value);
+      }
+    } catch {}
   }
 
   function refreshAllViews() {
     try { renderLevels(); } catch {}
     try { renderPublicStocks(); } catch {}
     try { renderCalPublic(); } catch {}
+    try { renderDailyNote(); } catch {}
     try { updatePriceLines(); } catch {}
   }
 
@@ -2430,6 +2530,8 @@
       pushRemoteData('levels', getLevels());
       pushRemoteData('stocks', getStocks());
       pushRemoteData('calendar', getCalEvents());
+      const note = getDailyNote();
+      if (note) pushRemoteData('daily_note', note);
       await new Promise(r => setTimeout(r, 600));
       btn.textContent = 'Synced ✓';
     } catch {
@@ -2448,19 +2550,27 @@
   };
 
   // ═══════════════ ROUTER ═══════════════
+  const SUBSCRIBER_PAGES = ['chart','nq','stocks','spos','contact','profile'];
+
   function navigate(page) {
+    if (SUBSCRIBER_PAGES.includes(page) && _sbUser && !hasAccess()) {
+      showSubRequired();
+      return;
+    }
+    hideSubRequired();
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-' + page).classList.add('active');
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
     document.getElementById('nav-' + page)?.classList.add('active');
 
-    if (page === 'chart')   { initChart(); renderLevels(); }
-    if (page === 'nq')      { initNQChart(); }
-    if (page === 'stocks')  { setStocksTab('watchlist'); renderPublicStocks(); }
-    if (page === 'spos')    { setSPOTab(_spoTab); loadSPOs(); }
-    if (page === 'admin')   initAdminPage();
-    if (page === 'profile') renderProfile();
-    if (page === 'contact') renderAppContact();
+    if (page === 'chart')    { initChart(); renderLevels(); renderDailyNote(); }
+    if (page === 'nq')       { initNQChart(); }
+    if (page === 'stocks')   { setStocksTab('watchlist'); renderPublicStocks(); }
+    if (page === 'spos')     { setSPOTab(_spoTab); loadSPOs(); }
+    if (page === 'admin')    { initAdminPage(); loadAdminDailyNote(); }
+    if (page === 'profile')  renderProfile();
+    if (page === 'contact')  renderAppContact();
+    if (page === 'calendar') renderCalendarPage();
   }
 
   // ═══════════════ INTERVAL ═══════════════
@@ -3722,6 +3832,115 @@
     renderCalPublic();
   }
 
+  // ═══════════════ CALENDAR APP PAGE ═══════════════
+  function renderCalendarPage() {
+    const rows = document.getElementById('cal-rows-app');
+    if (!rows) return;
+    const todayStr = today();
+    const events = getCalEvents()
+      .filter(e => e.date >= todayStr)
+      .sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
+      .slice(0, 16);
+
+    const cta = document.getElementById('cal-page-cta');
+    if (cta) cta.style.display = (_sbUser && !hasAccess()) ? 'flex' : 'none';
+
+    const impactCfg = {
+      high:   { dot:'#f59e0b', label:'High',   bg:'rgba(245,158,11,0.1)',  border:'rgba(245,158,11,0.25)', text:'#f59e0b' },
+      medium: { dot:'#94a3b8', label:'Medium', bg:'rgba(148,163,184,0.07)',border:'rgba(148,163,184,0.15)', text:'#94a3b8' },
+      low:    { dot:'#475569', label:'Low',    bg:'rgba(71,85,105,0.07)',  border:'rgba(71,85,105,0.15)',  text:'#475569' },
+    };
+    const fmtDate = d => {
+      const [y,m,day] = d.split('-');
+      return new Date(y, m-1, day).toLocaleDateString('en-US', { month:'short', day:'numeric', weekday:'short' });
+    };
+
+    if (!events.length) {
+      rows.innerHTML = '<div style="padding:2.5rem;text-align:center;color:#334155;font-size:0.875rem;">No upcoming events.</div>';
+      return;
+    }
+
+    let lastDate = '';
+    rows.innerHTML = events.map((e, i) => {
+      const cfg = impactCfg[e.impact] || impactCfg.medium;
+      const isNew = e.date !== lastDate;
+      lastDate = e.date;
+      const border = i < events.length - 1 ? 'border-bottom:1px solid rgba(255,255,255,0.04);' : '';
+      const datecell = isNew
+        ? `<span style="font-size:0.8rem;font-weight:500;color:#94a3b8;">${fmtDate(e.date)}</span>`
+        : `<span style="color:transparent;user-select:none;">—</span>`;
+      return `
+        <div style="display:grid;grid-template-columns:110px 80px 1fr auto;gap:0;padding:0.75rem 1.25rem;align-items:center;${border}${isNew && i > 0 ? 'border-top:1px solid rgba(255,255,255,0.04);' : ''}">
+          <div>${datecell}</div>
+          <div style="font-size:0.8rem;color:#64748b;font-family:'JetBrains Mono',monospace;">${escHtml(e.time || '—')}</div>
+          <div>
+            <span style="font-size:0.875rem;color:#e2e8f0;font-weight:${e.impact==='high'?'500':'400'};">${escHtml(e.event)}</span>
+            ${e.note ? `<span style="display:block;font-size:0.75rem;color:#475569;margin-top:1px;">${escHtml(e.note)}</span>` : ''}
+          </div>
+          <div>
+            <span style="display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.6rem;border-radius:9999px;font-size:0.7rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;background:${cfg.bg};border:1px solid ${cfg.border};color:${cfg.text};">
+              <span style="width:5px;height:5px;border-radius:50%;background:${cfg.dot};display:inline-block;"></span>${cfg.label}
+            </span>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // ═══════════════ DAILY NOTE ═══════════════
+  const NOTE_KEY = 'tm_daily_note';
+
+  function getDailyNote() {
+    try { return JSON.parse(localStorage.getItem(NOTE_KEY) || 'null'); } catch { return null; }
+  }
+  function storeDailyNote(obj) {
+    localStorage.setItem(NOTE_KEY, JSON.stringify(obj));
+  }
+
+  function renderDailyNote() {
+    const note = getDailyNote();
+    const textEl  = document.getElementById('daily-note-text');
+    const emptyEl = document.getElementById('daily-note-empty');
+    const dateEl  = document.getElementById('daily-note-date');
+    const adminUI = document.getElementById('daily-note-admin');
+    const inputEl = document.getElementById('daily-note-input');
+
+    if (adminUI) adminUI.classList.toggle('hidden', !isAdmin());
+    if (isAdmin() && inputEl && note?.text) inputEl.value = note.text;
+
+    if (dateEl) dateEl.textContent = note?.date ? new Date(note.date + 'T12:00').toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' }) : '';
+    if (textEl)  textEl.textContent = note?.text || '';
+    if (emptyEl) emptyEl.classList.toggle('hidden', !!(note?.text));
+    if (textEl)  textEl.classList.toggle('hidden', !(note?.text));
+  }
+
+  async function saveDailyNote() {
+    const inputEl = document.getElementById('daily-note-input');
+    const msgEl   = document.getElementById('daily-note-msg');
+    const text = inputEl?.value.trim() || '';
+    const obj = { text, date: today() };
+    storeDailyNote(obj);
+    pushRemoteData('daily_note', obj);
+    renderDailyNote();
+    if (msgEl) { msgEl.textContent = 'Published ✓'; msgEl.classList.remove('hidden'); setTimeout(() => msgEl.classList.add('hidden'), 2000); }
+  }
+
+  async function adminSaveDailyNote() {
+    const inputEl = document.getElementById('admin-note-input');
+    const msgEl   = document.getElementById('admin-note-msg');
+    const text = inputEl?.value.trim() || '';
+    const obj = { text, date: today() };
+    storeDailyNote(obj);
+    pushRemoteData('daily_note', obj);
+    renderDailyNote();
+    if (msgEl) { msgEl.textContent = 'Published ✓'; msgEl.classList.remove('hidden'); setTimeout(() => msgEl.classList.add('hidden'), 2000); }
+  }
+
+  function loadAdminDailyNote() {
+    const note = getDailyNote();
+    const inputEl = document.getElementById('admin-note-input');
+    if (inputEl && note?.text) inputEl.value = note.text;
+  }
+
   function renderCalAdmin() {
     const events = getCalEvents().sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
     const list  = document.getElementById('cal-admin-list');
@@ -4141,11 +4360,11 @@
     if (isAdmin()) {
       hidePaywall(); hideSubRequired(); navigate('chart');
     } else if (_sbUser) {
-      hidePaywall();
+      hidePaywall(); hideSubRequired();
       if (hasAccess()) {
-        hideSubRequired(); navigate('chart');
+        navigate('chart');
       } else {
-        showSubRequired();
+        navigate('calendar');
       }
     } else {
       hideSubRequired(); showPaywall();

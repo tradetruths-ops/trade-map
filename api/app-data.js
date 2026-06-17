@@ -1,7 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = 'https://nzdodkjluxxquconnflu.supabase.co';
-const ALLOWED_KEYS = ['levels', 'stocks', 'calendar'];
+const ALLOWED_KEYS = ['levels', 'stocks', 'calendar', 'daily_note'];
 
 module.exports = async function handler(req, res) {
   const sb = createClient(SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
