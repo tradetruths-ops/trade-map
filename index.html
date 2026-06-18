@@ -2529,6 +2529,15 @@
         if (value !== null) storeDailyNote(value);
       }
     } catch {}
+    try {
+      const [rf, rm] = await Promise.all([
+        fetch('/api/app-data?key=discord_free'),
+        fetch('/api/app-data?key=discord_members'),
+      ]);
+      if (rf.ok) { const { value } = await rf.json(); if (value) { const s = getSettings(); saveSettings({ ...s, discordFree: value }); } }
+      if (rm.ok) { const { value } = await rm.json(); if (value) { const s = getSettings(); saveSettings({ ...s, discordMembers: value }); } }
+    } catch {}
+    applyDiscordLinks();
   }
 
   function refreshAllViews() {
@@ -3621,8 +3630,8 @@
     const discordMembers = document.getElementById('s-discord-members').value.trim();
     saveSettings({ accessCode: code, stripeLink: link, stripeLinkYearly: linkYearly, accessDays: days || '35', discordFree, discordMembers });
     if (link)           document.querySelectorAll('[data-stripe-btn]').forEach(el => el.href = link);
-    if (discordFree)    { document.getElementById('discord-free-btn').href = discordFree; }
-    if (discordMembers) { document.getElementById('discord-members-btn').href = discordMembers; }
+    if (discordFree)    { document.getElementById('discord-free-btn').href = discordFree; pushRemoteData('discord_free', discordFree); }
+    if (discordMembers) { document.getElementById('discord-members-btn').href = discordMembers; pushRemoteData('discord_members', discordMembers); }
     applyDiscordLinks();
     flashEl(document.getElementById('paywall-settings-msg'), 'Settings saved!', 'text-brand-300');
   }
